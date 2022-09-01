@@ -1,0 +1,105 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.citus.jobName }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+spec:
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+    spec:
+      serviceAccountName: {{ .Values.citus.serviceAccountName }}
+      restartPolicy: Never
+      initContainers:
+        - name: init-chown-data
+          image: {{ template "imageRegistry" . -}} busybox
+          command:
+            - sh
+            - '-c'
+            - >-
+              while ! nc -w 1 {{ .Values.citus.mastersConfig.name }} {{ .Values.citus.mastersConfig.containers.port }} </dev/null; do echo waiting for master; sleep 10; done;
+      containers:
+      - name: {{ .Values.citus.jobName }}
+        image: {{ .Values.image.name  }}:{{ .Values.image.version }}
+        imagePullPolicy: IfNotPresent
+        workingDir: /liquibase/platform-db
+        command:
+          - sh
+          - '-c'
+          - >-
+            bash update.sh
+        env:
+        {{- $rolesSecret := .Values.citus.secrets.citusSecrets.rolesSecret }}
+        {{- range $k,$v := .Values.citus.secrets.citusRolesSecrets }}
+          {{- $keyName := (print $k "Name") }}
+          - name: {{ $keyName }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $rolesSecret }}
+                key: {{ $keyName }}
+        {{- end }}
+        {{- range $k,$v := .Values.citus.secrets.citusRolesSecrets }}
+          {{- $keyPass := (print $k "Pass") }}
+          - name: {{ $keyPass }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $rolesSecret }}
+                key: {{ $keyPass }}
+        {{- end }}
+          - name: DB_NAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.citus.secrets.citusSecrets.pgsecretName }}
+                key: {{ .Values.citus.secrets.citusSecrets.userName }}
+          - name: DB_PASS
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.citus.secrets.citusSecrets.pgsecretName }}
+                key: {{ .Values.citus.secrets.citusSecrets.pgsecretKey }}
+          - name: masterDBurl
+            value: {{ .Values.citus.url.masterDBurl }}
+          - name: replicaDBurl
+            value: {{ .Values.citus.url.replicaDBurl }}
+          - name: dbName
+            value: {{ .Values.citus.dbName }}
+          - name: archiveSchema
+            value: {{ .Values.citus.archiveSchema }}
+          - name: pubHost
+            value: {{ .Values.citus.pubHost }}
+          - name: pubUser
+            value: {{ .Values.citus.pubUser }}
+          - name: pubPort
+            value: {{ .Values.citus.pubPort | quote }}
+        {{- $urlprefix := "jdbc:postgresql://" -}}
+        {{- $nodename := .Values.citus.workersConfig.containers.nodeName -}}
+        {{- $workersname := .Values.citus.workersConfig.name -}}
+        {{- $containersport := .Values.citus.workersConfig.containers.port | toString -}}
+        {{- $replicas := .Values.global.citus.masterWorkers | int -}}
+        {{- $workersList := list -}}
+          {{- if gt $replicas 0 }}
+            {{- range untilStep 0 $replicas 1 }}
+            {{- $workersList = append $workersList (printf "%s%s-%d.%s:%s" $urlprefix $nodename . $workersname $containersport) }}
+            {{- end }}
+          - name: masterWorkers
+            value: "{{ $workersList | join " " }}"
+          {{- else }}
+          - name: masterWorkers
+            value: ""
+        {{- end }}
+        {{- $nodenamerep := .Values.citus.workersConfig.containers.replicaNodeName -}}
+        {{- $workersnamerep := .Values.citus.workersConfig.replicaName -}}
+        {{- $containersportrep := .Values.citus.workersConfig.containers.port | toString -}}
+        {{- $replicasrep := .Values.global.citus.replicaWorkers | int -}}
+        {{- $workersRepList := list -}}
+          {{- if gt $replicasrep 0 }}
+            {{- range untilStep 0 $replicasrep 1 }}
+            {{- $workersRepList = append $workersRepList (printf "%s%s-%d.%s:%s" $urlprefix $nodenamerep . $workersnamerep $containersportrep) }}
+            {{- end }}
+          - name: replicaWorkers
+            value: "{{ $workersRepList | join " " }}"
+        {{- else }}
+          - name: replicaWorkers
+            value: ""
+        {{- end }}

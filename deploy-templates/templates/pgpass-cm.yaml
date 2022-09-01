@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.citus.secrets.pgPassConfigMapName }}
+data:
+  create-pgpass.sh: |
+    #!/bin/ash -ev
+    cat <<EOF > /data/.pgpass
+    {{- range $k, $v := .Values.citus.secrets.citusRolesSecrets }}
+      {{- $valPass := (print $v "_pass") }}
+    *:*:*:{{ $v }}:${{ $valPass }}
+    {{- end }}
+    *:*:*:postgres:$POSTGRES_PASSWORD
+    EOF
+    chown 999:999 /data/.pgpass
+    chmod 0600 /data/.pgpass
