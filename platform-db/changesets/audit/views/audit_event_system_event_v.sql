@@ -1,5 +1,6 @@
 --liquibase formatted sql
 --changeset platform:create-view-audit_event_system_event_v runOnChange:true
+drop view if exists audit_event_system_event_v;
 create or replace view audit_event_system_event_v as
 select id
      , request_id
