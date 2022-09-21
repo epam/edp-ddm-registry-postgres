@@ -14,16 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
---changeset platform:f_rls_filter splitStatements:false stripComments:false runOnChange:true
-CREATE OR REPLACE FUNCTION f_rls_filter(text)
+--changeset platform:f_starts_with_array splitStatements:false stripComments:false runOnChange:true
+CREATE OR REPLACE FUNCTION f_starts_with_array(text)
   RETURNS text[]
   LANGUAGE sql IMMUTABLE STRICT PARALLEL SAFE
 AS $function$
 select string_to_array(regexp_replace(regexp_replace(replace(regexp_replace($1
-, '[\[\]]|\s|''', '', 'g')
+, '[\[\]\s'']', '', 'g')
 , ',', '%,')
 , '$', '%')
 , '^%', ''), ',');
 $function$
 ;
-
