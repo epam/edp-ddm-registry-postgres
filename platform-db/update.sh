@@ -14,6 +14,8 @@ liquibase $lb_params --changeLogFile=changesets/process_history-changelog.xml \
     --username=$DB_NAME_OP --password=$DB_PASS_OP --url=$masterDBurl/process_history update
 liquibase $lb_params --changeLogFile=changesets/notifications-changelog.xml \
     --username=$DB_NAME_OP --password=$DB_PASS_OP --url=$masterDBurl/notifications update
+liquibase $lb_params --changeLogFile=changesets/camunda-changelog.xml \
+    --username=$DB_NAME_OP --password=$DB_PASS_OP --url=$masterDBurl/camunda update
 #Replica platform
 liquibase --contexts="sub" $lb_params --changeLogFile=changesets/postgres-changelog.xml \
     --username=$DB_NAME_AN --password=$DB_PASS_AN --url=$replicaDBurl/postgres update
