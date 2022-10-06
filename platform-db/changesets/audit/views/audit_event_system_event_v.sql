@@ -21,6 +21,7 @@ select id
      , context::jsonb ->> 'userId'::text                     as user_id
      , context::jsonb ->> 'username'::text                   as username
      , context::jsonb ->> 'katottg'::text                    as katottg
+     , context::jsonb ->> 'customAttributes'::text           as custom_attributes
      , context::jsonb ->> 'enabled'::text                    as enabled
      , context::jsonb ->> 'realmId'::text                    as realm_id
      , context::jsonb ->> 'realmName'::text                  as realm_name
