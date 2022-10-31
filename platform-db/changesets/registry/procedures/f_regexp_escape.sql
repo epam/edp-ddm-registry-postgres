@@ -23,4 +23,3 @@ SELECT regexp_replace($1, '([!$()*+.:<=>?[\\\]^{|}-])', '\\\1', 'g')
 $function$
 ;
 
-SELECT create_distributed_function('f_regexp_escape(text)');

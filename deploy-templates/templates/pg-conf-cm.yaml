@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Values.citus.pgConfig.configMapName }}
-data:
-{{- (tpl (.Files.Glob "files/*").AsConfig . ) | nindent 2 }}

@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: operational-pool-config
+  labels:
+    name: operational-pool-config
+data:
+  pgpool.conf: |-
+    listen_addresses = '*'
+    port = 5432
+    # pool_passwd = /config/pool_passwd
+    socket_dir = '/var/run/pgpool'
+    pcp_listen_addresses = '*'
+    pcp_port = 9898
+    pcp_socket_dir = '/var/run/pgpool'
+    backend_hostname0 = 'operational-primary'
+    backend_port0 = 5432
+    backend_weight0 = 0
+    backend_flag0 = 'ALWAYS_PRIMARY|DISALLOW_TO_FAILOVER'
+    {{- $operational_replicas := .Values.global.crunchyPostgresOperator.instances.operational.replicas | int -}}
+    {{- if gt $operational_replicas 1 }}
+    backend_hostname1 = 'operational-replicas'
+    backend_port1 = 5432
+    backend_weight1 = 1
+    backend_flag1 = 'DISALLOW_TO_FAILOVER'
+    {{- else }}
+    #backend_hostname1 = 'operational-replicas'
+    #backend_port1 = 5432
+    #backend_weight1 = 1
+    #backend_flag1 = 'DISALLOW_TO_FAILOVER'
+    {{- end }}
+    sr_check_period = 0
+    enable_pool_hba = off
+    backend_clustering_mode = 'streaming_replication'
+    num_init_children = 200
+    max_pool = 1
+    reserved_connections = 0
+    child_life_time = 300
+    child_max_connections = 0
+    connection_life_time = 0
+    client_idle_limit = 0
+    connection_cache = on
+    load_balance_mode = on
+    statement_level_load_balance = off
+    ssl = off
+    failover_on_backend_error = off
+    logging_collector = off
+  pool_hba.conf: |-
+    local   all         all                               trust
+    host    all         all         127.0.0.1/32          trust
+    host    all         all         ::1/128               trust
+    host    all         all         0.0.0.0/0             md5

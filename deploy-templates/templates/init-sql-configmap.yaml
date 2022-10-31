@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rm-template-stat-statements
+data:
+  init.sql: |-
+    \c template1
+    drop EXTENSION if exists pg_stat_statements;

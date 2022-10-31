@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: create-citus-dump-pod
+  labels:
+    app: create-citus-dump-pod
+spec:
+  containers:
+    - name: create-citus-dump-pod
+      image: 'postgres:14-alpine'
+      command:
+        - 'sh'
+        - '-c'
+        - >-
+          pg_dumpall --host=citus-master -Upostgres -f /var/lib/postgresql/master-dump.sql;
+          pg_dumpall --host=citus-master-rep -Upostgres --no-subscriptions -s -f /var/lib/postgresql/replica-schema-dump.sql;
+          pg_dump --host=citus-master-rep -Upostgres -a -tddm_db_changelog postgres -f /var/lib/postgresql/postgres-ddm_db_changelog.sql;
+          pg_dump --host=citus-master-rep -Upostgres -a -tddm_db_changelog registry -f /var/lib/postgresql/registry-ddm_db_changelog.sql && echo success > DUMP_STATUS || echo failure > DUMP_STATUS;
+          cat DUMP_STATUS;
+          sleep 30000
+      env:
+        - name: PSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: citus-secrets
+              key: username
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: citus-secrets
+              key: password
