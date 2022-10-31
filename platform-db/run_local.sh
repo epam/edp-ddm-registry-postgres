@@ -36,10 +36,12 @@ export geoserverRoleName="geoserver_role"
 export geoserverRolePass="geoserver_role"
 #DB
 export DB_NAME="postgres"
-export DB_PASS="postgres"
+export DB_PASS_OP="postgres"
 export masterDBurl="jdbc:postgresql://master:5432"
 export replicaDBurl="jdbc:postgresql://replica:5432"
 export masterWorkers=""
+#"jdbc:postgresql://worker-0:5432 jdbc:postgresql://worker-1:5432"
 export replicaWorkers=""
+#"jdbc:postgresql://worker-rep-0:5432 jdbc:postgresql://worker-rep-1:5432"
 #run lb
 ./update.sh

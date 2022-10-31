@@ -1,0 +1,112 @@
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: operational
+spec:
+  image: {{ .Values.postgresCluster.image.name }}:{{ .Values.postgresCluster.image.version }}
+  postgresVersion: {{ .Values.postgresCluster.postgresVersion }}
+  databaseInitSQL:
+    key: init.sql
+    name: rm-template-stat-statements
+  instances:
+    - name: {{ .Values.global.crunchyPostgresOperator.instances.operational.name }}
+      replicas: {{ .Values.global.crunchyPostgresOperator.instances.operational.replicas }}
+      dataVolumeClaimSpec:
+        accessModes:
+        - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: {{ .Values.postgresCluster.storageSize }}
+  backups:
+     pgbackrest:
+       image: {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
+       configuration:
+       - secret:
+           name: {{ .Values.postgresCluster.minioSecretName }}
+       global:
+         repo1-path: "/postgres-backup/{{ .Values.namespace }}/operational"
+         {{- with .Values.postgresCluster.backups.pgbackrest.global }}
+         {{- toYaml . | nindent 9 }}
+         {{- end }}
+       repos:
+       - name: {{ .Values.postgresCluster.backups.pgbackrest.repos.name }}
+         schedules:
+           full: "{{ .Values.postgresCluster.backups.pgbackrest.repos.schedules.full }}"
+         s3:
+           bucket: {{ .Values.global.crunchyPostgresOperator.minioConf.bucketName }}
+           endpoint: {{ .Values.global.crunchyPostgresOperator.minioConf.endpoint }}
+           region: {{ .Values.postgresCluster.region }}
+  patroni:
+    dynamicConfiguration:
+      synchronous_mode: true
+      synchronous_node_count: {{ sub .Values.global.crunchyPostgresOperator.instances.operational.replicas 1 }}
+      pause: false
+      postgresql:
+      {{- with .Values.postgresCluster.postgresql }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      slots:
+        operational_sub:
+          database: registry
+          plugin: pgoutput
+          type: logical
+  users:
+    - name: postgres
+  monitoring:
+    pgmonitor:
+      exporter:
+        image: {{ .Values.postgresCluster.pgmonitor.exporter.image.name }}:{{ .Values.postgresCluster.pgmonitor.exporter.image.version }}
+---
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
+metadata:
+  name: analytical
+spec:
+  image: {{ .Values.postgresCluster.image.name }}:{{ .Values.postgresCluster.image.version }}
+  postgresVersion: {{ .Values.postgresCluster.postgresVersion }}
+  databaseInitSQL:
+    key: init.sql
+    name: rm-template-stat-statements
+  instances:
+    - name: {{ .Values.global.crunchyPostgresOperator.instances.analytical.name }}
+      replicas: {{ .Values.global.crunchyPostgresOperator.instances.analytical.replicas }}
+      dataVolumeClaimSpec:
+        accessModes:
+        - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: {{ .Values.postgresCluster.storageSize }}
+  backups:
+     pgbackrest:
+       image: {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
+       configuration:
+       - secret:
+           name: {{ .Values.postgresCluster.minioSecretName }}
+       global:
+         repo1-path: "/postgres-backup/{{ .Values.namespace }}/analytical"
+         {{- with .Values.postgresCluster.backups.pgbackrest.global }}
+         {{- toYaml . | nindent 9 }}
+         {{- end }}
+       repos:
+       - name: {{ .Values.postgresCluster.backups.pgbackrest.repos.name }}
+         schedules:
+           full: "{{ .Values.postgresCluster.backups.pgbackrest.repos.schedules.full }}"
+         s3:
+           bucket: {{ .Values.global.crunchyPostgresOperator.minioConf.bucketName }}
+           endpoint: {{ .Values.global.crunchyPostgresOperator.minioConf.endpoint }}
+           region: {{ .Values.postgresCluster.region }}
+  patroni:
+    dynamicConfiguration:
+      synchronous_mode: true
+      synchronous_node_count: {{ sub .Values.global.crunchyPostgresOperator.instances.analytical.replicas 1 }}
+      pause: false
+      postgresql:
+      {{- with .Values.postgresCluster.postgresql }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+  users:
+    - name: postgres
+  monitoring:
+    pgmonitor:
+      exporter:
+        image: {{ .Values.postgresCluster.pgmonitor.exporter.image.name }}:{{ .Values.postgresCluster.pgmonitor.exporter.image.version }}

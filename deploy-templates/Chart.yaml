@@ -1,4 +1,6 @@
 apiVersion: v2
-description: Helm chart for other application/service deploying
-name: citus-chart
-version: 0.0.1
+name: citus
+description: Helm chart with custom resources for Postgres clusters deploying using the open source Postgres Operator from Crunchy Data
+version: 0.3.0
+appVersion: 5.1.0
+type: application

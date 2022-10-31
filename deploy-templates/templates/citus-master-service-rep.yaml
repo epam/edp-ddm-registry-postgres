@@ -1,12 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.citus.mastersConfig.replicaName }}
+  name: citus-master-rep
   labels:
-    app: {{ .Values.citus.mastersConfig.replicaName }}
+    app: citus-master-rep
 spec:
   selector:
-    app: {{ .Values.citus.mastersConfig.replicaName }}
+    postgres-operator.crunchydata.com/cluster: analytical
+    postgres-operator.crunchydata.com/role: master
   clusterIP: None
   ports:
-  - port: {{ .Values.citus.mastersConfig.containers.port }}
+  - port: 5432

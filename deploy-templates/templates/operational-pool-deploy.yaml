@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: operational-pool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: operational-pool
+      postgres-operator.crunchydata.com/cluster: operational
+  template:
+    metadata:
+      labels:
+        app: operational-pool
+        postgres-operator.crunchydata.com/cluster: operational
+    spec:
+      containers:
+      - name: operational-pool
+        image: pgpool/pgpool
+        env:
+        {{- $rolesSecret := .Values.postgresCluster.secrets.citusSecrets.rolesSecret }}
+        {{- range $k,$v := .Values.postgresCluster.secrets.citusRolesSecrets }}
+        {{- $varName := (print $k "_USERNAME") | upper }}
+        {{- $keyName := (print $k "Name") }}
+        - name: {{ $varName }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $rolesSecret }}
+              key: {{ $keyName }}
+        {{- end }}
+        {{- range $k,$v := .Values.postgresCluster.secrets.citusRolesSecrets }}
+        {{- $varPassName := (print $k "_PASSWORD") | upper }}
+        {{- $keyPass := (print $k "Pass") }}
+        - name: {{ $varPassName }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $rolesSecret }}
+              key: {{ $keyPass }}
+        {{- end }}
+        - name: POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: operational-pguser-postgres
+              key: user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: operational-pguser-postgres
+              key: password
+        volumeMounts:
+        - name: operational-pool-config
+          mountPath: /config
+      volumes:
+      - name: operational-pool-config
+        configMap:
+          name: operational-pool-config
+      serviceAccount: {{ .Values.postgresCluster.serviceAccountName }}
+      securityContext:
+        runAsUser: 70
+        fsGroup: 70
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: operational-pool
+spec:
+  selector:
+    app: operational-pool
+  ports:
+  - name: operational-pool-port
+    protocol: TCP
+    port: 5432
+    targetPort: 5432

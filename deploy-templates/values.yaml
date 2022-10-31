@@ -1,9 +1,14 @@
 name: citus
 
 global:
-  citus:
-    masterWorkers: 2
-    replicaWorkers: 2
+  crunchyPostgresOperator:
+    instances:
+      operational:
+        name: instance1
+        replicas: 1
+      analytical:
+        name: instance1
+        replicas: 1
   imageRegistry: defaultValue
 
 namespace: ""
@@ -26,53 +31,34 @@ resources:
     cpu: 100m
     memory: 1Gi
 
-citus:
-  mastersConfig:
-    name: citus-master
-    replicaName: citus-master-rep
-    replicas: 1
-    replicaReplicas: 1
-    containers:
-      name: citus
-      image: citus-data-main:0.1.5-SNAPSHOT.4
-      port: 5432
-      env:
-        pgdata_value: /var/lib/postgresql/data/pgdata
-        user_name: username
-        pgsecret_name: citus-secrets
-        pgsecret_key: password
-      volumeMounts:
-        name: storage
-        mountPath: /var/lib/postgresql/data
-    volumes:
-      name: storage
-      claimName: citus-master-pvc
-      replicaClaimName: citus-master-rep-pvc
-      size: 5Gi
-      replicaSize: 5Gi
-  workersConfig:
-    name: citus-workers
-    replicaName: citus-workers-rep
-    containers:
-      nodeName: citus-worker
-      replicaNodeName: citus-worker-rep
-      port: 5432
-    volumes:
-      name: storage
-      size: 5Gi
-      replicaSize: 5Gi
-  postgresSecret:
-    name: citus-secrets
+postgresCluster:
+  postgresVersion: 14
+  image:
+    name: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-gis
+    version: ubi8-14.3-3.2-0
+  pgbackrest:
+    image:
+      name: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest
+      version: ubi8-2.38-1
+  pgmonitor:
+    podMonitorName: crunchy-postgres-exporter
+    exporter:
+      image:
+        name: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-exporter
+        version: ubi8-5.0.5-0
+  operationalClusterSecret:
+    name: operational-pguser-postgres
+  analyticalClusterSecret:
+    name: analytical-pguser-postgres
   initContainer:
     image: busybox
-  pgpassEnvVariable: /var/lib/postgresql/data/.pgpass
   serviceAccountName: citus
   securityContext:
     runAsUser: 999
     fsGroup: 999
   dbName: registry
   archiveSchema: archive
-  pubHost: citus-master
+  pubHost: operational-primary
   pubUser: postgres
   pubPort: 5432
   secrets:
@@ -97,13 +83,36 @@ citus:
       histRole: historical_data_role
       processHistoryRole: process_history_role
       geoserverRole: geoserver_role
-    pgPassConfigMapName: pgpass
   url:
-    masterDBurl: jdbc:postgresql://citus-master:5432
-    replicaDBurl: jdbc:postgresql://citus-master-rep:5432
-  pgConfig:
-    name: pg-conf
-    mountPath: /etc/postgresql
-    configMapName: pgconfig
-    logLevel: warning
+    masterDBurl: jdbc:postgresql://operational-primary:5432
+    replicaDBurl: jdbc:postgresql://analytical-primary:5432
   jobName: run-db-scripts-job
+  storageSize: 10Gi
+  minioSecretName: s3-conf
+  region: eu-central-1
+  backups:
+    pgbackrest:
+      global:
+        repo1-retention-full: "1"
+        repo1-s3-uri-style: path
+        repo1-retention-full-type: count
+        start-fast: "y"
+        repo1-storage-verify-tls: "n"
+        repo1-storage-port: "443"
+        log-level-file: detail
+      repos:
+        name: repo1
+        schedules:
+          full: "0 1 * * *"
+  postgresql:
+    parameters:
+      max_connections: 200
+      password_encryption: md5
+      log_min_duration_statement: 1000
+      log_destination: 'stderr'
+      logging_collector: 'off'
+      synchronous_standby_names: "*"
+    use_slots: true
+    pg_hba:
+    - host all all all md5
+
