@@ -10,6 +10,7 @@ global:
         name: instance1
         replicas: 1
   imageRegistry: defaultValue
+  storageClass: gp2
 
 namespace: ""
 cdPipelineName: ""
@@ -23,8 +24,6 @@ database:
 image:
   name: citus-chart
   version: latest
-
-storageClass: gp2
 
 resources:
   requests:

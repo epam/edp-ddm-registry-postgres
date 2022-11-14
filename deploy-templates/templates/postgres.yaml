@@ -11,7 +11,11 @@ spec:
   instances:
     - name: {{ .Values.global.crunchyPostgresOperator.instances.operational.name }}
       replicas: {{ .Values.global.crunchyPostgresOperator.instances.operational.replicas }}
+      metadata:
+        annotations:
+          backup.velero.io/backup-volumes: postgres-data
       dataVolumeClaimSpec:
+        storageClassName: {{ .Values.global.storageClass }}
         accessModes:
         - "ReadWriteOnce"
         resources:
@@ -70,7 +74,11 @@ spec:
   instances:
     - name: {{ .Values.global.crunchyPostgresOperator.instances.analytical.name }}
       replicas: {{ .Values.global.crunchyPostgresOperator.instances.analytical.replicas }}
+      metadata:
+        annotations:
+          backup.velero.io/backup-volumes: postgres-data
       dataVolumeClaimSpec:
+        storageClassName: {{ .Values.global.storageClass }}
         accessModes:
         - "ReadWriteOnce"
         resources:
