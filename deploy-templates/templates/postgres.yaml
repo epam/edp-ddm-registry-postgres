@@ -20,7 +20,7 @@ spec:
         - "ReadWriteOnce"
         resources:
           requests:
-            storage: {{ .Values.postgresCluster.storageSize }}
+            storage: {{ .Values.global.registry.crunchyPostgres.storageSize }}
   backups:
      pgbackrest:
        image: {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
@@ -46,9 +46,14 @@ spec:
       synchronous_node_count: {{ sub .Values.global.crunchyPostgresOperator.instances.operational.replicas 1 }}
       pause: false
       postgresql:
-      {{- with .Values.postgresCluster.postgresql }}
+      {{- with .Values.postgresCluster.postgresql.parameters }}
+      parameters:
+        max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
       {{- toYaml . | nindent 8 }}
       {{- end }}
+      use_slots: true
+      pg_hba:
+      - host all all all md5
       slots:
         operational_sub:
           database: registry
@@ -83,7 +88,7 @@ spec:
         - "ReadWriteOnce"
         resources:
           requests:
-            storage: {{ .Values.postgresCluster.storageSize }}
+            storage: {{ .Values.global.registry.crunchyPostgres.storageSize }}
   backups:
      pgbackrest:
        image: {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
@@ -109,9 +114,14 @@ spec:
       synchronous_node_count: {{ sub .Values.global.crunchyPostgresOperator.instances.analytical.replicas 1 }}
       pause: false
       postgresql:
-      {{- with .Values.postgresCluster.postgresql }}
+      {{- with .Values.postgresCluster.postgresql.parameters }}
+      parameters:
+        max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
       {{- toYaml . | nindent 8 }}
       {{- end }}
+      use_slots: true
+      pg_hba:
+      - host all all all md5
   users:
     - name: postgres
   monitoring:
