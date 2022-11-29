@@ -1,6 +1,12 @@
 name: citus
 
 global:
+  registry:
+    crunchyPostgres:
+      postgresql:
+        parameters:
+          max_connections: 200
+      storageSize: 10Gi
   crunchyPostgresOperator:
     instances:
       operational:
@@ -86,7 +92,6 @@ postgresCluster:
     masterDBurl: jdbc:postgresql://operational-primary:5432
     replicaDBurl: jdbc:postgresql://analytical-primary:5432
   jobName: run-db-scripts-job
-  storageSize: 10Gi
   minioSecretName: s3-conf
   region: eu-central-1
   backups:
@@ -105,13 +110,8 @@ postgresCluster:
           full: "0 1 * * *"
   postgresql:
     parameters:
-      max_connections: 200
       password_encryption: md5
       log_min_duration_statement: 1000
       log_destination: 'stderr'
       logging_collector: 'off'
       synchronous_standby_names: "*"
-    use_slots: true
-    pg_hba:
-    - host all all all md5
-
