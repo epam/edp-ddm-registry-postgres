@@ -5,7 +5,7 @@ global:
     crunchyPostgres:
       postgresql:
         parameters:
-          max_connections: 200
+          max_connections: 400
       storageSize: 10Gi
   crunchyPostgresOperator:
     instances:
