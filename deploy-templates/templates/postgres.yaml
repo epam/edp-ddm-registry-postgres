@@ -47,9 +47,9 @@ spec:
       pause: false
       postgresql:
       {{- with .Values.postgresCluster.postgresql.parameters }}
-      parameters:
-        max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
-      {{- toYaml . | nindent 8 }}
+        parameters:
+          max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
+      {{- toYaml . | nindent 10 }}
       {{- end }}
       use_slots: true
       pg_hba:
@@ -115,9 +115,9 @@ spec:
       pause: false
       postgresql:
       {{- with .Values.postgresCluster.postgresql.parameters }}
-      parameters:
-        max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
-      {{- toYaml . | nindent 8 }}
+        parameters:
+          max_connections: {{$.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
+      {{- toYaml . | nindent 10 }}
       {{- end }}
       use_slots: true
       pg_hba:
