@@ -51,9 +51,9 @@ spec:
           max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
       {{- toYaml . | nindent 10 }}
       {{- end }}
-      use_slots: true
-      pg_hba:
-      - host all all all md5
+        pg_hba:
+          - host all all all md5
+        use_slots: true
       slots:
         operational_sub:
           database: registry
@@ -118,12 +118,12 @@ spec:
       postgresql:
       {{- with .Values.postgresCluster.postgresql.parameters }}
         parameters:
-          max_connections: {{$.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
+          max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
       {{- toYaml . | nindent 10 }}
       {{- end }}
-      use_slots: true
-      pg_hba:
-      - host all all all md5
+        pg_hba:
+          - host all all all md5
+        use_slots: true
   users:
     - name: postgres
       password:
