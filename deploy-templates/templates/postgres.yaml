@@ -61,6 +61,8 @@ spec:
           type: logical
   users:
     - name: postgres
+      password:
+        type: AlphaNumeric
   monitoring:
     pgmonitor:
       exporter:
@@ -124,6 +126,8 @@ spec:
       - host all all all md5
   users:
     - name: postgres
+      password:
+        type: AlphaNumeric
   monitoring:
     pgmonitor:
       exporter:
