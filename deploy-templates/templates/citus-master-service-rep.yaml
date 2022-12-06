@@ -5,7 +5,9 @@ metadata:
   labels:
     app: citus-master-rep
 spec:
-  ports:
-  - port: {{ .Values.postgresCluster.port }}
   selector:
     postgres-operator.crunchydata.com/cluster: analytical
+    postgres-operator.crunchydata.com/role: master
+  clusterIP: None
+  ports:
+  - port: 5432
