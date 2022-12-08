@@ -37,6 +37,7 @@ resources:
     memory: 1Gi
 
 postgresCluster:
+  port: 5432
   postgresVersion: 14
   image:
     name: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-gis
