@@ -5,9 +5,10 @@ metadata:
   labels:
     app: citus-master
 spec:
-  selector:
-    postgres-operator.crunchydata.com/cluster: operational
-    postgres-operator.crunchydata.com/role: master
-  clusterIP: None
   ports:
-  - port: 5432
+    - name: operational-pool-port
+      protocol: TCP
+      port: {{ .Values.postgresCluster.port }}
+      targetPort: {{ .Values.postgresCluster.port }}
+  selector:
+    app: operational-pool
