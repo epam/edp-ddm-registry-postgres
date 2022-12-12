@@ -20,7 +20,7 @@ spec:
         - "ReadWriteOnce"
         resources:
           requests:
-            storage: {{ .Values.global.registry.crunchyPostgres.storageSize }}
+            storage: {{ .Values.global.crunchyPostgres.storageSize }}
   backups:
      pgbackrest:
        image: {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
@@ -48,7 +48,7 @@ spec:
       postgresql:
       {{- with .Values.postgresCluster.postgresql.parameters }}
         parameters:
-          max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
+          max_connections: {{ $.Values.global.crunchyPostgres.postgresql.parameters.max_connections }}
       {{- toYaml . | nindent 10 }}
       {{- end }}
         pg_hba:
@@ -90,7 +90,7 @@ spec:
         - "ReadWriteOnce"
         resources:
           requests:
-            storage: {{ .Values.global.registry.crunchyPostgres.storageSize }}
+            storage: {{ .Values.global.crunchyPostgres.storageSize }}
   backups:
      pgbackrest:
        image: {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
@@ -118,7 +118,7 @@ spec:
       postgresql:
       {{- with .Values.postgresCluster.postgresql.parameters }}
         parameters:
-          max_connections: {{ $.Values.global.registry.crunchyPostgres.postgresql.parameters.max_connections }}
+          max_connections: {{ $.Values.global.crunchyPostgres.postgresql.parameters.max_connections }}
       {{- toYaml . | nindent 10 }}
       {{- end }}
         pg_hba:

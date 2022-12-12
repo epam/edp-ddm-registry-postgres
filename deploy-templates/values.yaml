@@ -1,12 +1,11 @@
 name: citus
 
 global:
-  registry:
-    crunchyPostgres:
-      postgresql:
-        parameters:
-          max_connections: 200
-      storageSize: 10Gi
+  crunchyPostgres:
+    postgresql:
+      parameters:
+        max_connections: 200
+    storageSize: 10Gi
   crunchyPostgresOperator:
     instances:
       operational:
