@@ -5,6 +5,7 @@ metadata:
   annotations:
     "helm.sh/hook": post-install,post-upgrade
 spec:
+  backoffLimit: 10
   template:
     metadata:
       annotations:
