@@ -50,7 +50,7 @@ postgresCluster:
     exporter:
       image:
         name: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-exporter
-        version: ubi8-5.0.5-0
+        version: ubi8-5.2.0-0
   operationalClusterSecret:
     name: operational-pguser-postgres
   analyticalClusterSecret:
