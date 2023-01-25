@@ -23,3 +23,6 @@ liquibase --contexts="pub" $lb_params --changeLogFile=changesets/registry-change
 #Replica Registry
 liquibase --contexts="sub" $lb_params --changeLogFile=changesets/registry-changelog.xml \
     --username=$DB_NAME_AN --password=$DB_PASS_AN --url=$replicaDBurl/$dbName?$reg_path update
+#Master registry-template
+liquibase --contexts="pub,template" $lb_params --changeLogFile=changesets/registry-changelog.xml \
+    --username=$DB_NAME_OP --password=$DB_PASS_OP --url=$masterDBurl/registry_template?$reg_path update

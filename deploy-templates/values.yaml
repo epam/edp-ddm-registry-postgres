@@ -83,6 +83,7 @@ postgresCluster:
       notificationTemplatePublisher: notification_template_publisher_user
       notificationService: notification_service_user
       regOwner: registry_owner_role
+      regTemplateOwner: registry_template_owner_role
       appRole: application_role
       admRole: admin_role
       histRole: historical_data_role
