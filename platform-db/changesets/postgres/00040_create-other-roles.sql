@@ -18,3 +18,8 @@ create role ${anAdmName} with password '${anAdmPass}' login;
 --changeset platform:create-historical_data_role context:"sub"
 --validCheckSum: ANY
 create role ${histRoleName} with password '${histRolePass}' login;
+
+--changeset platform:create-registry-regulation-management_role context:"pub"
+--validCheckSum: ANY
+create role ${regRegulationRoleName} with password '${regRegulationRolePass}' login;
+grant pg_read_all_data to ${regRegulationRoleName};

@@ -36,6 +36,8 @@ export processHistoryRoleName="process_history_role"
 export processHistoryRolePass="process_history_role"
 export geoserverRoleName="geoserver_role"
 export geoserverRolePass="geoserver_role"
+export regRegulationRoleName="registry_regulation_management_role"
+export regRegulationRolePass="registry_regulation_management_role"
 #DB
 export DB_NAME="postgres"
 export DB_PASS_OP="postgres"
