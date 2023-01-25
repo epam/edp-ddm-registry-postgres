@@ -89,6 +89,7 @@ postgresCluster:
       histRole: historical_data_role
       processHistoryRole: process_history_role
       geoserverRole: geoserver_role
+      regRegulationRole: registry_regulation_management_role
   url:
     masterDBurl: jdbc:postgresql://operational-primary:5432
     replicaDBurl: jdbc:postgresql://analytical-primary:5432
