@@ -35,7 +35,7 @@ spec:
        repos:
        - name: {{ .Values.postgresCluster.backups.pgbackrest.repos.name }}
          schedules:
-           full: "{{ .Values.postgresCluster.backups.pgbackrest.repos.schedules.full }}"
+           full: "{{ .Values.global.crunchyPostgres.backups.pgbackrest.repos.schedules.full }}"
          s3:
            bucket: {{ .Values.global.crunchyPostgresOperator.minioConf.bucketName }}
            endpoint: {{ .Values.global.crunchyPostgresOperator.minioConf.endpoint }}
@@ -105,7 +105,7 @@ spec:
        repos:
        - name: {{ .Values.postgresCluster.backups.pgbackrest.repos.name }}
          schedules:
-           full: "{{ .Values.postgresCluster.backups.pgbackrest.repos.schedules.full }}"
+           full: "{{ .Values.global.crunchyPostgres.backups.pgbackrest.repos.schedules.full }}"
          s3:
            bucket: {{ .Values.global.crunchyPostgresOperator.minioConf.bucketName }}
            endpoint: {{ .Values.global.crunchyPostgresOperator.minioConf.endpoint }}
