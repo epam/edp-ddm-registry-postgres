@@ -6,6 +6,11 @@ global:
       parameters:
         max_connections: 200
     storageSize: 10Gi
+    backups:
+      pgbackrest:
+        repos:
+          schedules:
+            full: "0 1 * * *"
   crunchyPostgresOperator:
     instances:
       operational:
@@ -108,8 +113,6 @@ postgresCluster:
         log-level-file: detail
       repos:
         name: repo1
-        schedules:
-          full: "0 1 * * *"
   postgresql:
     parameters:
       password_encryption: md5
