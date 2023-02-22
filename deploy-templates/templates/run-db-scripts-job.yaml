@@ -45,44 +45,6 @@ spec:
                 }
               while ! get_postgres_cluster_ststus; do echo waiting for postgres clusters...; sleep 10; done;
               echo postgres clusters are ready!;
-        - name: apply-citus-dump
-          image: quay.io/openshift/origin-cli:latest
-          command:
-            - 'sh'
-            - '-c'
-            - >-
-              if oc get secret citus-secrets 2> /dev/null; then
-              counter=0;
-              while [[ "$(oc exec create-citus-dump-pod -- cat DUMP_STATUS)" != "success" && $counter -lt 20 ]]; do
-              echo waiting for citus dump finished; sleep 10; counter=$(($counter+1)); done;
-              replace_operational_password=$(echo "oc get secret operational-pguser-postgres -o json | sed -e '/password/c \"password\": \"$(oc get secret citus-secrets -o jsonpath='{.data.password}')\",' | oc replace  --force -f -;");
-              replace_analytical_password=$(echo "oc get secret analytical-pguser-postgres -o json | sed -e '/password/c \"password\": \"$(oc get secret citus-secrets -o jsonpath='{.data.password}')\",' | oc replace  --force -f -;");
-              bash -c "$replace_operational_password";
-              bash -c "$replace_analytical_password";
-              oc scale deployment/operational-pool --replicas=0;
-              oc scale deployment/operational-pool --replicas=1;
-              operational_master_pod_name=$(oc get pod -l "postgres-operator.crunchydata.com/cluster=operational,postgres-operator.crunchydata.com/role=master" -o jsonpath="{.items[0].metadata.name}");
-              analytical_master_pod_name=$(oc get pod -l "postgres-operator.crunchydata.com/cluster=analytical,postgres-operator.crunchydata.com/role=master" -o jsonpath="{.items[0].metadata.name}");
-              oc rsync create-citus-dump-pod:/var/lib/postgresql/ /tmp/ ;
-              oc rsync --no-perms=true /tmp/ $operational_master_pod_name:/pgdata/ ;
-              oc rsync --no-perms=true /tmp/ $analytical_master_pod_name:/pgdata/ ;
-              op_sync_counter=0;
-              while [[ "$(oc exec $operational_master_pod_name -- psql -Upostgres -Atc "select count(*) from pg_stat_replication")" != "$(oc exec $operational_master_pod_name -- psql -Upostgres -Atc "select count(*) from pg_stat_replication where sync_state='sync'")" && $op_sync_counter -lt 20 ]]; do
-              echo operational is not sync; sleep 10; op_sync_counter=$(($op_sync_counter+1)); done;
-              oc exec $operational_master_pod_name -- psql -Upostgres -Atc "select application_name,sync_state from pg_stat_replication";
-              oc exec $operational_master_pod_name -- psql -Upostgres -f /pgdata/master-dump.sql;
-              oc exec $operational_master_pod_name -- psql -Upostgres -c "ALTER ROLE postgres WITH PASSWORD '$(oc get secret citus-secrets -o jsonpath='{.data.password}' | base64 --decode)'";
-              oc exec $operational_master_pod_name -- psql -Upostgres -dregistry -c "SELECT pg_catalog.pg_drop_replication_slot('operational_sub') WHERE EXISTS (SELECT 1 FROM pg_catalog.pg_replication_slots WHERE slot_type = 'logical' AND slot_name = 'operational_sub' AND active='f')" -c "SELECT pg_catalog.pg_create_logical_replication_slot('operational_sub', 'pgoutput') WHERE NOT EXISTS (SELECT 1 FROM pg_catalog.pg_replication_slots WHERE slot_type = 'logical' AND slot_name = 'operational_sub')";
-              an_sync_counter=0;
-              while [[ "$(oc exec $analytical_master_pod_name -- psql -Upostgres -Atc "select count(*) from pg_stat_replication")" != "$(oc exec $analytical_master_pod_name -- psql -Upostgres -Atc "select count(*) from pg_stat_replication where sync_state='sync'")" && $an_sync_counter -lt 20 ]]; do
-              echo analytical is not sync; sleep 10; an_sync_counter=$(($an_sync_counter+1)); done;
-              oc exec $analytical_master_pod_name -- psql -Upostgres -Atc "select application_name,sync_state from pg_stat_replication";
-              oc exec $analytical_master_pod_name -- psql -Upostgres -f /pgdata/replica-schema-dump.sql;
-              oc exec $analytical_master_pod_name -- psql -Upostgres -dpostgres -f /pgdata/postgres-ddm_db_changelog.sql;
-              oc exec $analytical_master_pod_name -- psql -Upostgres -dregistry -f /pgdata/registry-ddm_db_changelog.sql;
-              oc exec $analytical_master_pod_name -- psql -Upostgres -c "ALTER ROLE postgres WITH PASSWORD '$(oc get secret citus-secrets -o jsonpath='{.data.password}' | base64 --decode)'";
-              bash -c "$(echo oc exec $analytical_master_pod_name -- psql -Upostgres -dregistry -c "\"CREATE SUBSCRIPTION operational_sub CONNECTION 'dbname=registry host=citus-master user=postgres password=$(oc get secret operational-pguser-postgres -o jsonpath='{.data.password}'| base64 --decode) port=5432' PUBLICATION analytical_pub WITH(create_slot=false,slot_name=operational_sub)"\"\;)";
-              oc delete pod create-citus-dump-pod; oc delete secret citus-secrets 2> /dev/null; else echo Already using Crunchy PGO - OK; fi
       containers:
       - name: {{ .Values.postgresCluster.jobName }}
         image: {{ .Values.image.name  }}:{{ .Values.image.version }}
