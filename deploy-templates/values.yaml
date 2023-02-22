@@ -1,4 +1,4 @@
-name: citus
+name: registry-postgres
 
 global:
   crunchyPostgres:
@@ -62,7 +62,7 @@ postgresCluster:
     name: analytical-pguser-postgres
   initContainer:
     image: busybox
-  serviceAccountName: citus
+  serviceAccountName: registry-postgres
   securityContext:
     runAsUser: 999
     fsGroup: 999

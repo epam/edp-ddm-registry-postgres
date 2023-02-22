@@ -1,5 +1,5 @@
 apiVersion: v2
-name: citus
+name: registry-postgres
 description: Helm chart with custom resources for Postgres clusters deploying using the open source Postgres Operator from Crunchy Data
 version: 0.3.0
 appVersion: 5.1.0
