@@ -1,0 +1,62 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ .Values.postgresCluster.cronJob.name }}
+spec:
+  schedule: {{ .Values.postgresCluster.cronJob.schedule }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: {{ .Values.postgresCluster.cronJob.name }}
+        spec:
+          restartPolicy: OnFailure
+          initContainers:
+            - name: wait-for-postgres-cluster
+              image: {{ template "imageRegistry" . -}} curlimages/curl
+              command:
+                - sh
+                - '-c'
+                - >-
+                  get_postgres_cluster_status () {
+                    operational_curl=$(curl --max-time 5 -k https://operational-pods:8008/cluster 2>&1 | grep -o 'state.\{0,12\}')
+                    if [[ ! "$operational_curl" ]]; then
+                      echo 'EMPTY'
+                    else
+                      operational_status=$(curl --max-time 5 -k https://operational-pods:8008/cluster 2>&1 | grep -o 'state.\{0,12\}' | cut -d'"' -f3 | grep -v 'running' | wc -l)
+                    fi
+                    echo $operational_status;
+
+                    if [[ "$operational_status" == "0" ]]; then
+                      return 0
+                    else
+                      return 1
+                    fi
+                  };
+                  while ! get_postgres_cluster_status; do echo waiting for postgres clusters...; sleep 10; done;
+                  echo postgres clusters are ready!;
+          containers:
+            - name: postgres
+              image: {{ .Values.postgresCluster.cronJob.image }}
+              imagePullPolicy: IfNotPresent
+              args:
+                - psql
+                - "-p"
+                - "{{ .Values.postgresCluster.port }}"
+                - "-h"
+                - "citus-master"
+                - "audit"
+                - "-c"
+                - "delete from audit_event ae where received <(current_timestamp -interval '{{ .Values.postgresCluster.cronJob.interval }}' day) and (application_name ,name ) in (('process-history-service-persistence', 'Kafka request. Method: save'), ('registry-rest-api','DB request. Method: search'), ('registry-rest-api', 'HTTP request. Method: search'));"
+              env:
+                - name: PGUSER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.postgresCluster.operationalClusterSecret.name }}
+                      key: user
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.postgresCluster.operationalClusterSecret.name }}
+                      key: password

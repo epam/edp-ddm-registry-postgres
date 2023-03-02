@@ -120,3 +120,8 @@ postgresCluster:
       log_destination: 'stderr'
       logging_collector: 'off'
       synchronous_standby_names: "*"
+  cronJob:
+    name: operational-audit-clean
+    image: bitnami/postgresql:14
+    schedule: "30 0 * * *"
+    interval: 3
