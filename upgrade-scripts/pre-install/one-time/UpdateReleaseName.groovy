@@ -20,7 +20,7 @@ void call() {
         sh(script: "oc annotate --overwrite postgrescluster $it meta.helm.sh/release-name='registry-postgres' -n $NAMESPACE || :")
     }
 //podmonitor
-    sh(script: "oc annotate --overwrite podmonitor crunchy-postgres-exporter -$NAMESPACE meta.helm.sh/release-name='registry-postgres' -n openshift-monitoring || :")
+    sh(script: "oc annotate --overwrite podmonitor crunchy-postgres-exporter-$NAMESPACE meta.helm.sh/release-name='registry-postgres' -n openshift-monitoring || :")
 
 //Delete pg-exporter-chart
     sh(script: "helm uninstall pg-exporter-chart -n $NAMESPACE || :")
