@@ -13,6 +13,7 @@ spec:
       labels:
         app: operational-pool
         postgres-operator.crunchydata.com/cluster: operational
+        collect.logs: "plain-text"
     spec:
       containers:
       - name: operational-pool
