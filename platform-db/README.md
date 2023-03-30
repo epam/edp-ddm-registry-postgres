@@ -18,7 +18,7 @@ platform-db
 │   ├── settings-changelog.xml        # ┘
 │   ├── worker-postgres-changelog.xml # ┬─> Changelogs for workers.
 │   └── worker-registry-changelog.xml # ┘
-├── run_local.sh                      # ──> Runs update on local citus. For testing.
+├── run_local.sh                      # ──> Runs update on local registry-postgres. For testing.
 └── update.sh                         # ──> Run lb update on all DBs in order.
 ```
 ## General rules
