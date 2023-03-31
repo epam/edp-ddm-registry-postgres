@@ -47,6 +47,7 @@ spec:
            region: {{ .Values.postgresCluster.region }}
   patroni:
     dynamicConfiguration:
+      failsafe_mode: true
       synchronous_mode: true
       synchronous_node_count: {{ sub .Values.global.crunchyPostgresOperator.instances.operational.replicas 1 }}
       pause: false
@@ -122,6 +123,7 @@ spec:
            region: {{ .Values.postgresCluster.region }}
   patroni:
     dynamicConfiguration:
+      failsafe_mode: true
       synchronous_mode: true
       synchronous_node_count: {{ sub .Values.global.crunchyPostgresOperator.instances.analytical.replicas 1 }}
       pause: false
