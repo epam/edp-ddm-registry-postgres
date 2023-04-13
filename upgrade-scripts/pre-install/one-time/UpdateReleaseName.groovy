@@ -25,6 +25,9 @@ void call() {
 //Delete pg-exporter-chart
     sh(script: "helm uninstall pg-exporter-chart -n $NAMESPACE || :")
 
+// Delete citus release secrets
+    sh(script: "oc delete secret -l name=citus -n $NAMESPACE || :")
+
 }
 
 return this;
