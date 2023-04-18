@@ -32,7 +32,7 @@ data:
     sr_check_period = 0
     enable_pool_hba = off
     backend_clustering_mode = 'streaming_replication'
-    num_init_children = 200
+    num_init_children = {{ $.Values.global.crunchyPostgres.postgresql.parameters.max_connections }}
     max_pool = 1
     reserved_connections = 0
     child_life_time = 300
