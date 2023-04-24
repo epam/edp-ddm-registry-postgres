@@ -45,6 +45,7 @@ data:
     ssl = off
     failover_on_backend_error = off
     logging_collector = off
+    enable_shared_relcache = off
   pool_hba.conf: |-
     local   all         all                               trust
     host    all         all         127.0.0.1/32          trust
