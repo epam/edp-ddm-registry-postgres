@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: operational-pool
-        image: pgpool/pgpool
+        image: {{ .Values.pgpool.image.name }}:{{ .Values.pgpool.image.version }}
         env:
         {{- $rolesSecret := .Values.postgresCluster.secrets.citusSecrets.rolesSecret }}
         {{- range $k,$v := .Values.postgresCluster.secrets.citusRolesSecrets }}

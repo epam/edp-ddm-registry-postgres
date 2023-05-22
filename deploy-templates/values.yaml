@@ -40,6 +40,11 @@ resources:
     cpu: 100m
     memory: 1Gi
 
+pgpool:
+  image:
+    name: pgpool/pgpool
+    version: 4.4.3
+
 postgresCluster:
   port: 5432
   postgresVersion: 14
