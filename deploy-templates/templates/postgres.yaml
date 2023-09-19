@@ -23,6 +23,9 @@ spec:
         resources:
           requests:
             storage: {{ .Values.global.crunchyPostgres.storageSize }}
+      {{- if .Values.global.container.requestsLimitsEnabled }}
+      resources: {{- toYaml .Values.global.registry.operationalInstance.container.resources | nindent 8 }}
+      {{- end }}
   backups:
      pgbackrest:
        image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
@@ -99,6 +102,9 @@ spec:
         resources:
           requests:
             storage: {{ .Values.global.crunchyPostgres.storageSize }}
+      {{- if .Values.global.container.requestsLimitsEnabled }}
+      resources: {{- toYaml .Values.global.registry.analyticalInstance.container.resources | nindent 8 }}
+      {{- end }}
   backups:
      pgbackrest:
        image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
