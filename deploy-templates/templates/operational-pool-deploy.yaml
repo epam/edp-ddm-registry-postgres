@@ -51,6 +51,9 @@ spec:
         volumeMounts:
         - name: operational-pool-config
           mountPath: /config
+        {{- if .Values.global.container.requestsLimitsEnabled }}
+        resources: {{- toYaml .Values.global.registry.operationalPool.container.resources | nindent 12 }}
+        {{- end }}
       volumes:
       - name: operational-pool-config
         configMap:

@@ -1,6 +1,8 @@
 name: registry-postgres
 
 global:
+  container:
+    requestsLimitsEnabled: true
   crunchyPostgres:
     postgresql:
       parameters:
@@ -21,6 +23,22 @@ global:
         replicas: 1
   imageRegistry: defaultValue
   storageClass: gp2
+  registry:
+    operationalInstance:
+      container:
+        resources:
+          requests: {}
+          limits: {}
+    analyticalInstance:
+      container:
+        resources:
+          requests: {}
+          limits: {}
+    operationalPool:
+      container:
+        resources:
+          requests: {}
+          limits: {}
 
 namespace: ""
 cdPipelineName: ""
@@ -100,6 +118,10 @@ postgresCluster:
       processHistoryRole: process_history_role
       geoserverRole: geoserver_role
       regRegulationRole: registry_regulation_management_role
+      redashAdminRole: redash_admin_role
+      redashViewerRole: redash_viewer_role
+      bpmService: bpm_service_user
+      bpAdminPortalService: bp_admin_portal_service_user
   url:
     masterDBurl: jdbc:postgresql://operational-primary:5432
     replicaDBurl: jdbc:postgresql://analytical-primary:5432
