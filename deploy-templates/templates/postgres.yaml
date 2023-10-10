@@ -3,7 +3,7 @@ kind: PostgresCluster
 metadata:
   name: operational
 spec:
-  image: {{ .Values.postgresCluster.image.name }}:{{ .Values.postgresCluster.image.version }}
+  image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.image.name }}:{{ .Values.postgresCluster.image.version }}
   postgresVersion: {{ .Values.postgresCluster.postgresVersion }}
   databaseInitSQL:
     key: init.sql
@@ -25,7 +25,7 @@ spec:
             storage: {{ .Values.global.crunchyPostgres.storageSize }}
   backups:
      pgbackrest:
-       image: {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
+       image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
        metadata:
          labels:
            collect.logs: "plain-text"
@@ -72,14 +72,14 @@ spec:
   monitoring:
     pgmonitor:
       exporter:
-        image: {{ .Values.postgresCluster.pgmonitor.exporter.image.name }}:{{ .Values.postgresCluster.pgmonitor.exporter.image.version }}
+        image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.pgmonitor.exporter.image.name }}:{{ .Values.postgresCluster.pgmonitor.exporter.image.version }}
 ---
 apiVersion: postgres-operator.crunchydata.com/v1beta1
 kind: PostgresCluster
 metadata:
   name: analytical
 spec:
-  image: {{ .Values.postgresCluster.image.name }}:{{ .Values.postgresCluster.image.version }}
+  image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.image.name }}:{{ .Values.postgresCluster.image.version }}
   postgresVersion: {{ .Values.postgresCluster.postgresVersion }}
   databaseInitSQL:
     key: init.sql
@@ -101,7 +101,7 @@ spec:
             storage: {{ .Values.global.crunchyPostgres.storageSize }}
   backups:
      pgbackrest:
-       image: {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
+       image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.pgbackrest.image.name }}:{{ .Values.postgresCluster.pgbackrest.image.version }}
        metadata:
          labels:
            collect.logs: "plain-text"
@@ -143,4 +143,4 @@ spec:
   monitoring:
     pgmonitor:
       exporter:
-        image: {{ .Values.postgresCluster.pgmonitor.exporter.image.name }}:{{ .Values.postgresCluster.pgmonitor.exporter.image.version }}
+        image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.pgmonitor.exporter.image.name }}:{{ .Values.postgresCluster.pgmonitor.exporter.image.version }}
