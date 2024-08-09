@@ -49,17 +49,17 @@ postgresCluster:
   port: 5432
   postgresVersion: 14
   image:
-    name: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-gis
+    name: crunchydata/crunchy-postgres-gis
     version: ubi8-14.3-3.2-0
   pgbackrest:
     image:
-      name: registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest
+      name: crunchydata/crunchy-pgbackrest
       version: ubi8-2.38-1
   pgmonitor:
     podMonitorName: crunchy-postgres-exporter
     exporter:
       image:
-        name: registry.developers.crunchydata.com/crunchydata/crunchy-postgres-exporter
+        name: crunchydata/crunchy-postgres-exporter
         version: ubi8-5.2.0-0
   operationalClusterSecret:
     name: operational-pguser-postgres
