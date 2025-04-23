@@ -78,7 +78,7 @@ postgresCluster:
     exporter:
       image:
         name: crunchydata/crunchy-postgres-exporter
-        version: ubi8-5.2.0-0
+        version: ubi8-5.3.0-0
   operationalClusterSecret:
     name: operational-pguser-postgres
   analyticalClusterSecret:
@@ -149,6 +149,6 @@ postgresCluster:
       synchronous_standby_names: "*"
   cronJob:
     name: operational-audit-clean
-    image: bitnami/postgresql:14
+    image: bitnami/postgresql:14.5.0-debian-11-r28
     schedule: "30 0 * * *"
     interval: 3

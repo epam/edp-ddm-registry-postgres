@@ -38,7 +38,7 @@ spec:
                   echo postgres clusters are ready!;
           containers:
             - name: postgres
-              image: {{ .Values.postgresCluster.cronJob.image }}
+              image: {{ template "imageRegistry" . -}} {{ .Values.postgresCluster.cronJob.image }}
               imagePullPolicy: IfNotPresent
               args:
                 - psql

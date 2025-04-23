@@ -45,7 +45,7 @@ spec:
          schedules:
            full: "{{ .Values.global.crunchyPostgres.backups.pgbackrest.repos.schedules.full }}"
          s3:
-           bucket: {{ .Values.global.crunchyPostgresOperator.minioConf.bucketName }}
+           bucket: {{ .Release.Namespace }}-backups
            endpoint: {{ .Values.global.crunchyPostgresOperator.minioConf.endpoint }}
            region: {{ .Values.postgresCluster.region }}
   patroni:
@@ -124,7 +124,7 @@ spec:
          schedules:
            full: "{{ .Values.global.crunchyPostgres.backups.pgbackrest.repos.schedules.full }}"
          s3:
-           bucket: {{ .Values.global.crunchyPostgresOperator.minioConf.bucketName }}
+           bucket: {{ .Release.Namespace }}-backups
            endpoint: {{ .Values.global.crunchyPostgresOperator.minioConf.endpoint }}
            region: {{ .Values.postgresCluster.region }}
   patroni:

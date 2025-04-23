@@ -36,7 +36,7 @@ begin
   -- if check needed
   if tg_op = 'DELETE' or tg_op = 'UPDATE' and v_id_for_check <> v_id_new then
     -- check if value exists in reference table
-    execute 'select 1 from ' || v_table || ' where ''' || v_id_for_check || ''' = any(' || v_array_field || ') limit 1' into v_is_value_found;
+    execute 'select 1 from ' || v_table || ' where ' || v_array_field || ' && ARRAY[''' || v_id_for_check || '''::uuid] AND ' || v_array_field || ' @> ARRAY[''' || v_id_for_check || '''::uuid] limit 1' into v_is_value_found;
     if v_is_value_found is not null then
       raise exception '% = ''%'' in "%" is used in "%.%". Operation % is aborted.', v_field_for_check, v_id_for_check, tg_table_name, v_table, v_array_field, tg_op;
     end if;
